@@ -40,6 +40,22 @@ public:
 	virtual void on_channel_lost(IUftStraCtx* ctx) override;
 
 	virtual void on_entrust(uint32_t localid, bool bSuccess, const char* message) override;
+	
+	/*
+	 *	委托队列推送
+	 */
+	virtual void on_order_queue(IUftStraCtx* ctx, const char* stdCode, WTSOrdQueData* newOrdQue) override;
+
+	/*
+	 *	逐笔委托推送
+	 */
+	virtual void on_order_detail (IUftStraCtx* ctx, const char* stdCode, WTSOrdDtlData* newOrdDtl) override;
+
+	/*
+	 *	逐笔成交推送
+	 */
+	virtual void on_transaction(IUftStraCtx* ctx, const char* stdCode, WTSTransData* newTrans) override;
+
 
 	virtual void on_params_updated() override;
 

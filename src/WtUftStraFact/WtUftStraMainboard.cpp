@@ -67,23 +67,31 @@ void WtUftStraMainboard::on_init(IUftStraCtx *ctx)
 	// 	kline->release();
 
 	// ctx->stra_sub_ticks(_code.c_str());
+	auto symbols = {"SSE.603628", "SZSE.000001"};
+	for (auto symbol : symbols)
+	{
+		ctx->stra_sub_ticks(symbol);
+		ctx->stra_sub_order_details(symbol);
+		ctx->stra_sub_order_queues(symbol);
+		ctx->stra_sub_transactions(symbol);
+	}
 
 	_ctx = ctx;
 }
 
 void WtUftStraMainboard::on_tick(IUftStraCtx *ctx, const char *code, WTSTickData *newTick)
 {
-	if (_code.compare(code) != 0)
-		return;
+	// if (_code.compare(code) != 0)
+	// 	return;
 
-	if (!_orders.empty())
-	{
-		check_orders();
-		return;
-	}
+	// if (!_orders.empty())
+	// {
+	// 	check_orders();
+	// 	return;
+	// }
 
-	if (!_channel_ready)
-		return;
+	// if (!_channel_ready)
+	// 	return;
 	_ctx->stra_log_info(fmt::format("on_tick: {}", code).c_str());
 }
 
@@ -105,15 +113,25 @@ void WtUftStraMainboard::check_orders()
 		}
 	}
 }
+void WtUftStraMainboard::on_order_queue(IUftStraCtx *ctx, const char *stdCode, WTSOrdQueData *newOrdQue)
+{
+	_ctx->stra_log_info("on_order_queue");
+}
 
+void WtUftStraMainboard::on_transaction(IUftStraCtx *ctx, const char *code, WTSTransData *newTrans)
+{
+	_ctx->stra_log_info("on_transaction");
+}
+void WtUftStraMainboard::on_order_detail(IUftStraCtx *ctx, const char *stdCode, WTSOrdDtlData *newOrdDet)
+{
+	_ctx->stra_log_info("on_order_details");
+}
 void WtUftStraMainboard::on_bar(IUftStraCtx *ctx, const char *code, const char *period, uint32_t times, WTSBarStruct *newBar)
 {
-	
 }
 
 void WtUftStraMainboard::on_trade(IUftStraCtx *ctx, uint32_t localid, const char *stdCode, bool isLong, uint32_t offset, double qty, double price)
 {
-	
 }
 
 void WtUftStraMainboard::on_position(IUftStraCtx *ctx, const char *stdCode, bool isLong, double prevol, double preavail, double newvol, double newavail)
