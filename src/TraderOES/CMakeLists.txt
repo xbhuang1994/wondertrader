@@ -12,7 +12,7 @@ SET(SRC
 )
 
 SET(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build_${PLATFORM}/${CMAKE_BUILD_TYPE}/bin)
-
+SET(OES_LIB_DIR ${PROJECT_SOURCE_DIR}/../API/oesApi0.17.5.8/linux)
 INCLUDE_DIRECTORIES(${INCS})
 LINK_DIRECTORIES(${LNKS})
 ADD_LIBRARY(TraderOES SHARED ${SRC})
@@ -34,6 +34,7 @@ ELSE(GNUCC)
 			dl
 			boost_thread
 			boost_filesystem
+			${OES_LIB_DIR}/liboes_api.a
 			)
 	ENDIF()
 ENDIF()
