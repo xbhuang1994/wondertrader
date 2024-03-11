@@ -221,11 +221,11 @@ bool TraderOES::init(WTSVariant *params)
 {
 	_config = params->getCString("config");
 
-	std::string module = params->getCString("oesmodule");
-	if (module.empty()) module = "oes_api";
-	std::string dllpath = getBinDir() + DLLHelper::wrap_module(module.c_str(), "lib");
+	// std::string module = params->getCString("oesmodule");
+	// if (module.empty()) module = "oes_api";
+	// std::string dllpath = getBinDir() + DLLHelper::wrap_module(module.c_str(), "lib");
 
-	DLLHelper::load_library(dllpath.c_str());
+	// DLLHelper::load_library(dllpath.c_str());
 
 	return true;
 }

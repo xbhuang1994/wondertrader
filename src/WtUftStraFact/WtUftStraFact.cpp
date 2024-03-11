@@ -1,57 +1,60 @@
 ﻿#include "WtUftStraFact.h"
-#include "WtUftStraDemo.h"
+// #include "WtUftStraDemo.h"
+#include "WtUftStraMainboard.h"
 
 #include <string.h>
 
-const char* FACT_NAME = "WtUftStraFact";
+const char *FACT_NAME = "WtUftStraFact";
 
 extern "C"
 {
-	EXPORT_FLAG IUftStrategyFact* createStrategyFact()
+	EXPORT_FLAG IUftStrategyFact *createStrategyFact()
 	{
-		IUftStrategyFact* fact = new WtUftStraFact();
+		IUftStrategyFact *fact = new WtUftStraFact();
 		return fact;
 	}
 
-	EXPORT_FLAG void deleteStrategyFact(IUftStrategyFact* fact)
+	EXPORT_FLAG void deleteStrategyFact(IUftStrategyFact *fact)
 	{
 		if (fact != NULL)
 			delete fact;
 	}
 }
 
-
 WtUftStraFact::WtUftStraFact()
 {
 }
-
 
 WtUftStraFact::~WtUftStraFact()
 {
 }
 
-const char* WtUftStraFact::getName()
+const char *WtUftStraFact::getName()
 {
 	return FACT_NAME;
 }
 
 void WtUftStraFact::enumStrategy(FuncEnumUftStrategyCallback cb)
 {
-	cb(FACT_NAME, "SimpleUft", true);
+	// cb(FACT_NAME, "SimpleUft", true);
+	cb(FACT_NAME, "MainboardUft", true);
 }
 
-UftStrategy* WtUftStraFact::createStrategy(const char* name, const char* id)
+UftStrategy *WtUftStraFact::createStrategy(const char *name, const char *id)
 {
-	if(strcmp(name, "SimpleUft") == 0)
+	// if(strcmp(name, "SimpleUft") == 0)
+	// {
+	// 	return new WtUftStraDemo(id);
+	// }
+	if (strcmp(name, "MainboardUft") == 0)
 	{
-		return new WtUftStraDemo(id);
+		return new WtUftStraMainboard(id);
 	}
-
 
 	return NULL;
 }
 
-bool WtUftStraFact::deleteStrategy(UftStrategy* stra)
+bool WtUftStraFact::deleteStrategy(UftStrategy *stra)
 {
 	if (stra == NULL)
 		return true;

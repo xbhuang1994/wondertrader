@@ -132,12 +132,12 @@ bool ParserOES::init( WTSVariant* config )
 	if (_gpsize == 0)
 		_gpsize = 1000;
 
-	std::string module = config->getCString("oesmodule");
-	if (module.empty())
-		module = "oes_api";
+	// std::string module = config->getCString("oesmodule");
+	// if (module.empty())
+	// 	module = "oes_api";
 
-	std::string dllpath = getBinDir() + DLLHelper::wrap_module(module.c_str(), "lib");
-	DLLHelper::load_library(dllpath.c_str());
+	// std::string dllpath = getBinDir() + DLLHelper::wrap_module(module.c_str(), "lib");
+	// DLLHelper::load_library(dllpath.c_str());
 
 	return true;
 }
@@ -346,22 +346,22 @@ void ParserOES::doOnConnected(MdsAsyncApiChannelT *pAsyncChannel)
 	}
 
 	/* 追加订阅所有上海指数行情 */
-	if (!MdsAsyncApi_SubscribeByString(pAsyncChannel,
-		(char *)NULL, (char *)NULL,
-		MDS_EXCH_SSE, MDS_MD_PRODUCT_TYPE_INDEX, MDS_SUB_MODE_APPEND,
-		dataTypes)) 
-	{
-		write_log(_sink, LL_WARN, "[ParserOES] Subscribe index quotes of SSE failed");
-	}
+	// if (!MdsAsyncApi_SubscribeByString(pAsyncChannel,
+	// 	(char *)NULL, (char *)NULL,
+	// 	MDS_EXCH_SSE, MDS_MD_PRODUCT_TYPE_INDEX, MDS_SUB_MODE_APPEND,
+	// 	dataTypes)) 
+	// {
+	// 	write_log(_sink, LL_WARN, "[ParserOES] Subscribe index quotes of SSE failed");
+	// }
 
-	/* 追加订阅所有上海期权行情 */
-	if (!MdsAsyncApi_SubscribeByString(pAsyncChannel,
-		(char *)NULL, (char *)NULL,
-		MDS_EXCH_SSE, MDS_MD_PRODUCT_TYPE_OPTION, MDS_SUB_MODE_APPEND,
-		dataTypes)) 
-	{
-		write_log(_sink, LL_WARN, "[ParserOES] Subscribe option quotes of SSE failed");
-	}
+	// /* 追加订阅所有上海期权行情 */
+	// if (!MdsAsyncApi_SubscribeByString(pAsyncChannel,
+	// 	(char *)NULL, (char *)NULL,
+	// 	MDS_EXCH_SSE, MDS_MD_PRODUCT_TYPE_OPTION, MDS_SUB_MODE_APPEND,
+	// 	dataTypes)) 
+	// {
+	// 	write_log(_sink, LL_WARN, "[ParserOES] Subscribe option quotes of SSE failed");
+	// }
 
 	/* 追加订阅所有深圳股票/债券/基金的 Level-2 行情 */
 	if (!MdsAsyncApi_SubscribeByString(pAsyncChannel,
@@ -373,22 +373,22 @@ void ParserOES::doOnConnected(MdsAsyncApiChannelT *pAsyncChannel)
 	}
 
 	/* 追加订阅所有深圳指数行情 */
-	if (!MdsAsyncApi_SubscribeByString(pAsyncChannel,
-		(char *)NULL, (char *)NULL,
-		MDS_EXCH_SZSE, MDS_MD_PRODUCT_TYPE_INDEX, MDS_SUB_MODE_APPEND,
-		dataTypes)) 
-	{
-		write_log(_sink, LL_WARN, "[ParserOES] Subscribe index quotes of SZSE failed");
-	}
+	// if (!MdsAsyncApi_SubscribeByString(pAsyncChannel,
+	// 	(char *)NULL, (char *)NULL,
+	// 	MDS_EXCH_SZSE, MDS_MD_PRODUCT_TYPE_INDEX, MDS_SUB_MODE_APPEND,
+	// 	dataTypes)) 
+	// {
+	// 	write_log(_sink, LL_WARN, "[ParserOES] Subscribe index quotes of SZSE failed");
+	// }
 
 	/* 追加订阅所有深圳期权行情 */
-	if (!MdsAsyncApi_SubscribeByString(pAsyncChannel,
-		(char *)NULL, (char *)NULL,
-		MDS_EXCH_SZSE, MDS_MD_PRODUCT_TYPE_OPTION, MDS_SUB_MODE_APPEND,
-		dataTypes)) 
-	{
-		write_log(_sink, LL_WARN, "[ParserOES] Subscribe option quotes of SZSE failed");
-	}
+	// if (!MdsAsyncApi_SubscribeByString(pAsyncChannel,
+	// 	(char *)NULL, (char *)NULL,
+	// 	MDS_EXCH_SZSE, MDS_MD_PRODUCT_TYPE_OPTION, MDS_SUB_MODE_APPEND,
+	// 	dataTypes)) 
+	// {
+	// 	write_log(_sink, LL_WARN, "[ParserOES] Subscribe option quotes of SZSE failed");
+	// }
 }
 
 void ParserOES::doOnDisconnected(MdsAsyncApiChannelT *pAsyncChannel)
