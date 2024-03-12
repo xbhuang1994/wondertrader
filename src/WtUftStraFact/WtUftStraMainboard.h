@@ -6,6 +6,7 @@
 
 #include "../Includes/UftStrategyDefs.h"
 #include "../Share/SpinMutex.hpp"
+#include <sw/redis++/redis++.h>
 
 class WtUftStraMainboard : public UftStrategy
 {
@@ -21,13 +22,15 @@ public:
 
 	virtual const char* getFactName() override;
 
-	virtual bool init(WTSVariant* cfg) override;
+    virtual bool init(WTSVariant *cfg) override;
 
-	virtual void on_init(IUftStraCtx* ctx) override;
+    void initRedis(wtp::WTSVariant *cfg);
 
-	virtual void on_tick(IUftStraCtx* ctx, const char* code, WTSTickData* newTick) override;
+    virtual void on_init(IUftStraCtx *ctx) override;
 
-	virtual void on_bar(IUftStraCtx* ctx, const char* code, const char* period, uint32_t times, WTSBarStruct* newBar) override;
+    virtual void on_tick(IUftStraCtx *ctx, const char *code, WTSTickData *newTick) override;
+
+    virtual void on_bar(IUftStraCtx* ctx, const char* code, const char* period, uint32_t times, WTSBarStruct* newBar) override;
 
 	virtual void on_trade(IUftStraCtx* ctx, uint32_t localid, const char* stdCode, bool isLong, uint32_t offset, double qty, double price) override;
 
@@ -60,13 +63,9 @@ public:
 	virtual void on_params_updated() override;
 
 private:
+	std::string    	_exchg;
 	WTSTickData*	_last_tick;
 	IUftStraCtx*	_ctx;
-	std::string		_code;
-	uint32_t		_secs;
-	uint32_t		_freq;
-	int32_t			_offset;
-	double			_lots;
 	double			_prev;
 
 	typedef std::unordered_set<uint32_t> IDSet;
@@ -78,5 +77,6 @@ private:
 	bool			_channel_ready;
 	uint32_t		_last_calc_time;
 	uint32_t		_cancel_cnt;
+	std::shared_ptr<sw::redis::Redis>	_redis;
 };
 

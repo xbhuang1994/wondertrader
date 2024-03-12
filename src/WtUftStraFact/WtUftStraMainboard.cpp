@@ -11,7 +11,7 @@
 extern const char *FACT_NAME;
 
 WtUftStraMainboard::WtUftStraMainboard(const char *id)
-	: UftStrategy(id), _last_tick(NULL), _last_entry_time(UINT64_MAX), _channel_ready(false), _last_calc_time(0), _lots(1), _cancel_cnt(0)
+	: UftStrategy(id), _last_tick(NULL), _last_entry_time(UINT64_MAX), _channel_ready(false), _last_calc_time(0), _cancel_cnt(0)
 {
 }
 
@@ -33,15 +33,65 @@ const char *WtUftStraMainboard::getFactName()
 
 bool WtUftStraMainboard::init(WTSVariant *cfg)
 {
-	// 这里演示一下外部传入参数的获取
-	_code = cfg->getCString("code");
-	_secs = cfg->getUInt32("second");
-	_freq = cfg->getUInt32("freq");
-	_offset = cfg->getUInt32("offset");
+	_exchg = cfg->getCString("exchg");
+	auto redis_cfg = cfg->get("redis");
+	initRedis(redis_cfg);
 
-	_lots = cfg->getDouble("lots");
+	auto low_factor_key = cfg->getCString("low_factor");
+	auto low_factor_val = _redis->get(low_factor_key);
+	if (low_factor_val)
+	{
+		
+	// 	// std::string exchange_str = m_cfg["md"]["exchange"];
+	// 	// json jsonArray = json::parse(*low_factor_str);
+	// 	// for (auto &element : jsonArray)
+	// 	// {
+	// 	// 	if (exchange_str != element["exchange"])
+	// 	// 	{
+	// 	// 		continue;
+	// 	// 	}
+	// 	// 	std::string stock_id = element["security_id"];
+	// 	// 	int sec = FactorLibrary::sec2num(stock_id.c_str(), 6);
+	// 	// 	std::string yesterday_vol = element["yesterday_vol"];
+	// 	// 	std::string total_market_cap = element["total_market_cap"];
+	// 	// 	std::string circ_market_cap = element["circ_market_cap"];
+	// 	// 	std::string circ_mv_z = element["circ_mv_z"];
+	// 	// 	bool ban = element["ban"];
+	// 	// 	std::string upper_limit_price = element["upper_limit_price"];
+	// 	// 	std::string yesterday_close = element["close"];
+	// 	// 	std::string f1217_153 = element["f1217_153"];
+	// 	// 	std::string f1217_102 = element["f1217_102"];
+	// 	// 	std::string f1217_51 = element["f1217_51"];
+	// 	// 	// 初始化当前策略为 ban
+	// 	// 	m_ban_stock_arr[sec] = ban;
+
+	// 	// 	m_active_factor_library->upLowFactor(sec, std::stod(yesterday_vol), std::stod(total_market_cap), std::stod(circ_market_cap), std::stod(circ_mv_z), ban, std::stod(upper_limit_price), std::stod(yesterday_close), std::stod(f1217_153), std::stod(f1217_102), std::stod(f1217_51));
+	// 	// }
+	// 	return true;
+	}
+	// else
+	// {
+	// 	return false;
+	// }
 
 	return true;
+}
+
+void WtUftStraMainboard::initRedis(wtp::WTSVariant *redis_cfg)
+{
+	// using namespace sw::redis;
+	using sw::redis::ConnectionOptions;
+	using sw::redis::Redis;
+	auto host = redis_cfg->getCString("host");
+	auto port = redis_cfg->getUInt32("port");
+	auto db = redis_cfg->getUInt32("db");
+	auto password = redis_cfg->getCString("password");
+	ConnectionOptions conn_options;
+	conn_options.host = host;
+	conn_options.port = port;
+	conn_options.db = db;
+	conn_options.password = password;
+	_redis = std::make_shared<Redis>(conn_options);
 }
 
 void WtUftStraMainboard::on_entrust(uint32_t localid, bool bSuccess, const char *message)
@@ -56,17 +106,6 @@ void WtUftStraMainboard::on_entrust(uint32_t localid, bool bSuccess, const char 
 
 void WtUftStraMainboard::on_init(IUftStraCtx *ctx)
 {
-	// ctx->watch_param("second", _secs);
-	// ctx->watch_param("freq", _freq);
-	// ctx->watch_param("offset", _offset);
-	// ctx->watch_param("lots", _lots);
-	// ctx->commit_param_watcher();
-
-	// WTSKlineSlice* kline = ctx->stra_get_bars(_code.c_str(), "m1", 30);
-	// if (kline)
-	// 	kline->release();
-
-	// ctx->stra_sub_ticks(_code.c_str());
 	auto symbols = {"SSE.603628", "SZSE.000001"};
 	for (auto symbol : symbols)
 	{
@@ -81,37 +120,11 @@ void WtUftStraMainboard::on_init(IUftStraCtx *ctx)
 
 void WtUftStraMainboard::on_tick(IUftStraCtx *ctx, const char *code, WTSTickData *newTick)
 {
-	// if (_code.compare(code) != 0)
-	// 	return;
-
-	// if (!_orders.empty())
-	// {
-	// 	check_orders();
-	// 	return;
-	// }
-
-	// if (!_channel_ready)
-	// 	return;
 	_ctx->stra_log_info(fmt::format("on_tick: {}", code).c_str());
 }
 
 void WtUftStraMainboard::check_orders()
 {
-	if (!_orders.empty() && _last_entry_time != UINT64_MAX)
-	{
-		uint64_t now = TimeUtils::makeTime(_ctx->stra_get_date(), _ctx->stra_get_time() * 100000 + _ctx->stra_get_secs());
-		if (now - _last_entry_time >= _secs * 1000) // 如果超过一定时间没有成交完,则撤销
-		{
-			_mtx_ords.lock();
-			for (auto localid : _orders)
-			{
-				_ctx->stra_cancel(localid);
-				_cancel_cnt++;
-				_ctx->stra_log_info(fmt::format("Order expired, cancelcnt updated to {}", _cancel_cnt).c_str());
-			}
-			_mtx_ords.unlock();
-		}
-	}
 }
 void WtUftStraMainboard::on_order_queue(IUftStraCtx *ctx, const char *stdCode, WTSOrdQueData *newOrdQue)
 {
@@ -136,9 +149,6 @@ void WtUftStraMainboard::on_trade(IUftStraCtx *ctx, uint32_t localid, const char
 
 void WtUftStraMainboard::on_position(IUftStraCtx *ctx, const char *stdCode, bool isLong, double prevol, double preavail, double newvol, double newavail)
 {
-	if (_code != stdCode)
-		return;
-
 	_prev = prevol;
 	_ctx->stra_log_info(fmt::format("There are {} of {} before today", _prev, stdCode).c_str());
 }
@@ -166,21 +176,6 @@ void WtUftStraMainboard::on_order(IUftStraCtx *ctx, uint32_t localid, const char
 
 void WtUftStraMainboard::on_channel_ready(IUftStraCtx *ctx)
 {
-	double undone = _ctx->stra_get_undone(_code.c_str());
-	if (!decimal::eq(undone, 0) && _orders.empty())
-	{
-		// 这说明有未完成单不在监控之中,先撤掉
-		_ctx->stra_log_info(fmt::format("{}有不在管理中的未完成单 {} 手,全部撤销", _code, undone).c_str());
-
-		OrderIDs ids = _ctx->stra_cancel_all(_code.c_str());
-		for (auto localid : ids)
-		{
-			_orders.insert(localid);
-		}
-		_cancel_cnt += ids.size();
-
-		_ctx->stra_log_info(fmt::format("cancelcnt -> {}", _cancel_cnt).c_str());
-	}
 
 	_channel_ready = true;
 }
@@ -197,10 +192,10 @@ void WtUftStraMainboard::on_params_updated()
 	// ctx->watch_param("offset", _offset);
 	// ctx->watch_param("lots", _lots);
 
-	_secs = _ctx->read_param("second", _secs);
-	_freq = _ctx->read_param("freq", _freq);
-	_offset = _ctx->read_param("offset", _offset);
-	_lots = _ctx->read_param("lots", _lots);
+	// _secs = _ctx->read_param("second", _secs);
+	// _freq = _ctx->read_param("freq", _freq);
+	// _offset = _ctx->read_param("offset", _offset);
+	// _lots = _ctx->read_param("lots", _lots);
 
-	_ctx->stra_log_info(fmtutil::format("[{}] Params updated, second: {}, freq: {}, offset: {}, lots: {}", _id.c_str(), _secs, _freq, _offset, _lots));
+	// _ctx->stra_log_info(fmtutil::format("[{}] Params updated, second: {}, freq: {}, offset: {}, lots: {}", _id.c_str(), _secs, _freq, _offset, _lots));
 }

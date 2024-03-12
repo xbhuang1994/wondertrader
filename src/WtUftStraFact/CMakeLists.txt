@@ -1,5 +1,5 @@
 #1. 确定CMake的最低版本需求
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5.0)
 
 #2. 确定工程名
 PROJECT(WtUftStraFact LANGUAGES CXX)
@@ -18,6 +18,8 @@ ADD_LIBRARY(WtUftStraFact SHARED ${SRCS} ${HDRS})
 SET(LIBS
 	boost_filesystem
 	dl
+	redis++
+	hiredis
 )
 
 IF (WIN32)
