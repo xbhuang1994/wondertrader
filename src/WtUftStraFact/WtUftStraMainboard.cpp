@@ -7,7 +7,7 @@
 #include "../Share/TimeUtils.hpp"
 #include "../Share/decimal.h"
 #include "../Share/fmtlib.h"
-
+#include "rapidjson/document.h"
 extern const char *FACT_NAME;
 
 WtUftStraMainboard::WtUftStraMainboard(const char *id)
@@ -35,49 +35,61 @@ bool WtUftStraMainboard::init(WTSVariant *cfg)
 {
 	_exchg = cfg->getCString("exchg");
 	auto redis_cfg = cfg->get("redis");
-	initRedis(redis_cfg);
+	init_redis(redis_cfg);
 
 	auto low_factor_key = cfg->getCString("low_factor");
 	auto low_factor_val = _redis->get(low_factor_key);
 	if (low_factor_val)
 	{
-		
-	// 	// std::string exchange_str = m_cfg["md"]["exchange"];
-	// 	// json jsonArray = json::parse(*low_factor_str);
-	// 	// for (auto &element : jsonArray)
-	// 	// {
-	// 	// 	if (exchange_str != element["exchange"])
-	// 	// 	{
-	// 	// 		continue;
-	// 	// 	}
-	// 	// 	std::string stock_id = element["security_id"];
-	// 	// 	int sec = FactorLibrary::sec2num(stock_id.c_str(), 6);
-	// 	// 	std::string yesterday_vol = element["yesterday_vol"];
-	// 	// 	std::string total_market_cap = element["total_market_cap"];
-	// 	// 	std::string circ_market_cap = element["circ_market_cap"];
-	// 	// 	std::string circ_mv_z = element["circ_mv_z"];
-	// 	// 	bool ban = element["ban"];
-	// 	// 	std::string upper_limit_price = element["upper_limit_price"];
-	// 	// 	std::string yesterday_close = element["close"];
-	// 	// 	std::string f1217_153 = element["f1217_153"];
-	// 	// 	std::string f1217_102 = element["f1217_102"];
-	// 	// 	std::string f1217_51 = element["f1217_51"];
-	// 	// 	// 初始化当前策略为 ban
-	// 	// 	m_ban_stock_arr[sec] = ban;
+		auto exchg = cfg->getCString("exchg");
+		std::string exchange_str = "SH";
+		if(exchg == "SZSE"){
+			exchange_str = "SZ";
+		}
+		rapidjson::Document jsonArray;
+		jsonArray.Parse((*low_factor_val).c_str());
+		for (rapidjson::SizeType i = 0; i < jsonArray.Size(); i++){
+			std::string exchange = jsonArray[i]["exchange"].GetString();
+            if(exchange != exchange_str){
+                // _low_factor[code] = std::stod(factor);
+				continue;
+            }
+			std::string stock_id = jsonArray[i]["security_id"].GetString();
+			// int sec = FactorLibrary::sec2num(stock_id.c_str(), 6);
+			std::string yesterday_vol = jsonArray[i]["yesterday_vol"].GetString();
+		}
 
-	// 	// 	m_active_factor_library->upLowFactor(sec, std::stod(yesterday_vol), std::stod(total_market_cap), std::stod(circ_market_cap), std::stod(circ_mv_z), ban, std::stod(upper_limit_price), std::stod(yesterday_close), std::stod(f1217_153), std::stod(f1217_102), std::stod(f1217_51));
-	// 	// }
-	// 	return true;
+		// json jsonArray = json::parse(*low_factor_str);
+		// for (auto &element : jsonArray)
+		// {
+		// 	if (exchange_str != element["exchange"])
+		// 	{
+		// 		continue;
+		// 	}
+		// 	std::string stock_id = element["security_id"];
+		// 	int sec = FactorLibrary::sec2num(stock_id.c_str(), 6);
+		// 	std::string yesterday_vol = element["yesterday_vol"];
+		// 	std::string total_market_cap = element["total_market_cap"];
+		// 	std::string circ_market_cap = element["circ_market_cap"];
+		// 	std::string circ_mv_z = element["circ_mv_z"];
+		// 	bool ban = element["ban"];
+		// 	std::string upper_limit_price = element["upper_limit_price"];
+		// 	std::string yesterday_close = element["close"];
+		// 	std::string f1217_153 = element["f1217_153"];
+		// 	std::string f1217_102 = element["f1217_102"];
+		// 	std::string f1217_51 = element["f1217_51"];
+		// 	// 初始化当前策略为 ban
+		// 	m_ban_stock_arr[sec] = ban;
+
+		// 	m_active_factor_library->upLowFactor(sec, std::stod(yesterday_vol), std::stod(total_market_cap), std::stod(circ_market_cap), std::stod(circ_mv_z), ban, std::stod(upper_limit_price), std::stod(yesterday_close), std::stod(f1217_153), std::stod(f1217_102), std::stod(f1217_51));
+		// }
+		
 	}
-	// else
-	// {
-	// 	return false;
-	// }
 
 	return true;
 }
 
-void WtUftStraMainboard::initRedis(wtp::WTSVariant *redis_cfg)
+void WtUftStraMainboard::init_redis(wtp::WTSVariant *redis_cfg)
 {
 	// using namespace sw::redis;
 	using sw::redis::ConnectionOptions;

@@ -16,6 +16,7 @@ public:
 
 private:
 	void	check_orders();
+	void init_redis(wtp::WTSVariant *cfg);
 
 public:
 	virtual const char* getName() override;
@@ -23,8 +24,6 @@ public:
 	virtual const char* getFactName() override;
 
     virtual bool init(WTSVariant *cfg) override;
-
-    void initRedis(wtp::WTSVariant *cfg);
 
     virtual void on_init(IUftStraCtx *ctx) override;
 
